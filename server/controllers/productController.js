@@ -1,7 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
-import Product from "../models/productModel.js";
+import Product from "../models/product.js";
 
-// ✅ Add product: POST /api/product/add
 export const addProduct = async (req, res) => {
   try {
     const productData = JSON.parse(req.body.productData);
@@ -18,14 +17,17 @@ export const addProduct = async (req, res) => {
 
     const product = await Product.create({ ...productData, image: imageUrls });
 
-    return res.status(201).json({ success: true, message: "Product added", product });
+    return res.status(201).json({
+      success: true,
+      message: "Product added",
+      product
+    });
   } catch (error) {
-    console.error("Error adding product:", error);
+    console.error("Add Product Error:", error.message);
     return res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// ✅ Get all products: GET /api/product/list
 export const productList = async (req, res) => {
   try {
     const products = await Product.find();
@@ -35,7 +37,6 @@ export const productList = async (req, res) => {
   }
 };
 
-// ✅ Get single product by ID: GET /api/product/:id
 export const getSingleProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -48,18 +49,20 @@ export const getSingleProduct = async (req, res) => {
   }
 };
 
-// ✅ Change stock status: PUT /api/product/change-stock/:id
 export const changeStock = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-
     if (!product)
       return res.status(404).json({ success: false, message: "Product not found" });
 
     product.inStock = !product.inStock;
     await product.save();
 
-    res.json({ success: true, message: "Stock status updated", inStock: product.inStock });
+    res.json({
+      success: true,
+      message: "Stock status updated",
+      inStock: product.inStock
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

@@ -3,73 +3,56 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+
 import userRouter from './routes/userRoute.js';
 import sellerRouter from './routes/sellerRoute.js';
 import productRouter from './routes/productRoute.js';
+import cartRouter from './routes/cartRouter.js';
+import addressRouter from './routes/addressRouter.js';
+import connectCloudinary from './configs/cloudinary.js';
+import orderRouter from './routes/orderRoute.js';
 
 dotenv.config();
 
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:5173', // frontend URL
+  origin: 'http://localhost:5173',
   credentials: true
 }));
 app.use(cookieParser());
 app.use(express.json());
 
-await connectCloudinary()
+const startServer = async () => {
+  try {
+    await connectCloudinary();
 
-// Use MONGODB_URI from your .env
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => {
-  console.log("Database Connected");
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
 
-  // Routes after DB connection
-  app.use('/api/user', userRouter);
-  app.use('/api/seller', sellerRouter);
-  app.use('/api/product', productRouter);
+    console.log("Database Connected");
 
+    app.use('/api/user', userRouter);
+    app.use('/api/seller', sellerRouter);
+    app.use('/api/product', productRouter);
+    app.use('/api/cart', cartRouter);
+    app.use('/api/address', addressRouter);
+    app.use('/api/order', orderRouter);
 
-
-  // Start server after DB connection
-  app.listen(4000, () => {
-    console.log("Server running at http://localhost:4000");
-  });
-})
-.catch((err) => {
-  console.error("MongoDB connection error:", err);
-});
+    app.get('/', (req, res) => {
+    res.send('API Server is running');
+    });
 
 
+    app.listen(4000, () => {
+      console.log("Server running at http://localhost:4000");
+    });
 
+  } catch (err) {
+    console.error("Startup Error:", err.message);
+  }
+};
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//postman 
-
-// {
-//   "name": "Madan",
-//   "email": "madan@example.com",
-//   "password": "123456"
-// }
+startServer();

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const SellerLogin = () => {
-  const { isSeller, setIsSeller } = useAppContext();
+  const { isSeller, setIsSeller, axios } = useAppContext();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -12,18 +12,46 @@ const SellerLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
 
-  // Dummy in-memory "database"
-  const [registeredSellers, setRegisteredSellers] = useState([]);
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
 
-  useEffect(() => {
-    // Set default seller only if none exist
-    setRegisteredSellers((prev) => {
-      if (prev.length === 0) {
-        return [{ email: "seller@example.com", password: "123" }];
+    if (isRegister) {
+      try {
+        const { data } = await axios.post("/api/seller/register", {
+          email,
+          password,
+        });
+
+        if (data.success) {
+          toast.success("Registration successful! Please login.");
+          setIsRegister(false);
+          setEmail("");
+          setPassword("");
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        toast.error(error.message);
       }
-      return prev;
-    });
-  }, []);
+    } else {
+      try {
+        const { data } = await axios.post("/api/seller/login", {
+          email,
+          password,
+        });
+
+        if (data.success) {
+          setIsSeller(true);
+          toast.success("Login successful!");
+          navigate("/seller");
+        } else {
+          toast.error(data.message);
+        }
+      } catch (error) {
+        toast.error(error.message);
+      }
+    }
+  };
 
   useEffect(() => {
     if (isSeller) {
@@ -35,38 +63,6 @@ const SellerLogin = () => {
     setIsRegister((prev) => !prev);
     setEmail("");
     setPassword("");
-  };
-
-  const onSubmitHandler = async (event) => {
-    event.preventDefault();
-
-    if (!email || !password) {
-      toast.error("Please enter both email and password");
-      return;
-    }
-
-    if (isRegister) {
-      if (registeredSellers.find((s) => s.email === email)) {
-        toast.error("Email already registered");
-      } else {
-        setRegisteredSellers((prev) => [...prev, { email, password }]);
-        toast.success("Registration successful! Please login.");
-        setIsRegister(false);
-        setEmail("");
-        setPassword("");
-      }
-    } else {
-      const foundSeller = registeredSellers.find(
-        (s) => s.email === email && s.password === password
-      );
-      if (foundSeller) {
-        setIsSeller(true);
-        toast.success("Login successful!");
-        navigate("/seller");
-      } else {
-        toast.error("Invalid credentials");
-      }
-    }
   };
 
   return (

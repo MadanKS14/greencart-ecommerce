@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { assets, categories } from '../../assets/assets';
+import toast from 'react-hot-toast';
+import { useAppContext } from '../../context/AppContext';
 
 const AddProduct = () => {
   const [files, setFiles] = useState([]);
@@ -9,24 +11,42 @@ const AddProduct = () => {
   const [price, setPrice] = useState('');
   const [offerPrice, setOfferPrice] = useState('');
 
+  const { axios } = useAppContext();
+
   const onSubmitHandler = async (event) => {
     event.preventDefault();
+    try {
+      const productData = {
+        name,
+        description: description.split('\n'),
+        category,
+        price,
+        offerPrice,
+      };
 
-    // Handle form submission here (e.g. send to backend)
-    const formData = {
-      name,
-      description,
-      category,
-      price,
-      offerPrice,
-      images: files,
-    };
+      const formData = new FormData();
+      formData.append('productData', JSON.stringify(productData));
+      for (let i = 0; i < files.length; i++) {
+        formData.append('images', files[i]);
+      }
 
-    console.log('Submitting Product:', formData);
-    // You can then call an API here
+      const { data } = await axios.post('/api/product/add', formData);
+
+      if (data.success) {
+        toast.success(data.message);
+        setName('');
+        setDescription('');
+        setCategory('');
+        setPrice('');
+        setOfferPrice('');
+        setFiles([]);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Something went wrong');
+    }
   };
-
-  console.log("add-products");
 
   return (
     <div className="no-scrollbar flex-1 h-[95vh] overflow-y-scroll flex flex-col justify-between">

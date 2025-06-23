@@ -9,8 +9,9 @@ import sellerRouter from './routes/sellerRoute.js';
 import productRouter from './routes/productRoute.js';
 import cartRouter from './routes/cartRouter.js';
 import addressRouter from './routes/addressRouter.js';
-import connectCloudinary from './configs/cloudinary.js';
 import orderRouter from './routes/orderRoute.js';
+
+import cloudinary from './configs/cloudinary.js';
 
 dotenv.config();
 
@@ -18,21 +19,19 @@ const app = express();
 
 app.use(cors({
   origin: 'http://localhost:5173',
-  credentials: true
+  credentials: true,
 }));
 app.use(cookieParser());
 app.use(express.json());
 
 const startServer = async () => {
   try {
-    await connectCloudinary();
-
     await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
     });
 
-    console.log("Database Connected");
+    console.log('Database Connected');
 
     app.use('/api/user', userRouter);
     app.use('/api/seller', sellerRouter);
@@ -42,16 +41,14 @@ const startServer = async () => {
     app.use('/api/order', orderRouter);
 
     app.get('/', (req, res) => {
-    res.send('API Server is running');
+      res.send('API Server is running');
     });
-
 
     app.listen(4000, () => {
-      console.log("Server running at http://localhost:4000");
+      console.log('Server running at http://localhost:4000');
     });
-
   } catch (err) {
-    console.error("Startup Error:", err.message);
+    console.error('Startup Error:', err.message);
   }
 };
 

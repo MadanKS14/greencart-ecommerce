@@ -41,14 +41,13 @@ export const AppContextProvider = ({ children }) => {
     try{
       const {data} = await axios.get('/api/product/list')
       if(data.success){
-        setProducts(data.success)
+        setProducts(data.products)
       }else{
         toast.error(data.message)
       }
     }catch(error){
-      toast.error(data.message)
+      toast.error(error.message)
     }
-    setProducts(dummyProducts);
   };
 
   // Add item to cart
@@ -140,7 +139,8 @@ export const AppContextProvider = ({ children }) => {
     getCartCount,
     getCartAmount,
     axios,
-    fetchProducts
+    fetchProducts,
+
   };
 
   return (

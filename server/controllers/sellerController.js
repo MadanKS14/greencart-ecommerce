@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
+import User from '../models/user.js';
 
 // seller login: /api/seller/login
- const sellerLogin = async (req, res) => {
+export const sellerLogin = async (req, res) => {
   const { email, password } = req.body;
 
   if (
@@ -24,7 +25,7 @@ import jwt from 'jsonwebtoken';
 };
 
 // seller is-auth: /api/seller/is-auth
- const isSellerAuth = async (req, res) => {
+export const isSellerAuth = async (req, res) => {
   try {
     const token = req.cookies.sellerToken;
 
@@ -45,7 +46,7 @@ import jwt from 'jsonwebtoken';
 };
 
 // seller logout: /api/seller/logout
- const sellerLogout = async (req, res) => {
+export const sellerLogout = async (req, res) => {
   try {
     res.clearCookie("sellerToken", {
       httpOnly: true,
@@ -58,6 +59,3 @@ import jwt from 'jsonwebtoken';
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-
-// ✅ Export all
-export { sellerLogin, isSellerAuth, sellerLogout };

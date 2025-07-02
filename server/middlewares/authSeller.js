@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import User from '../models/user.js';
 
 const authSeller = async (req, res, next) => {
   const { sellerToken } = req.cookies;
@@ -9,13 +10,14 @@ const authSeller = async (req, res, next) => {
 
   try {
     const tokenDecode = jwt.verify(sellerToken, process.env.JWT_SECRET);
-   if(tokenDecode.email === process.env.SELLER_EMAIL){
-    next();
-   } else{
-    return res.json({ success:false , message: ' Not Authorized'})
-   }
+
+    if (tokenDecode.email === process.env.SELLER_EMAIL) {
+      return next();
+    } else {
+      return res.status(403).json({ success: false, message: 'Invalid seller credentials' });
+    }
   } catch (error) {
-    return res.status(403).json({ success: false, message: 'error.message' });
+    return res.status(403).json({ success: false, message: error.message });
   }
 };
 

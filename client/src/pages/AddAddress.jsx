@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
 
 const AddAddress = () => {
-  const { axios } = useAppContext();        // axios from context
-  const navigate = useNavigate();           // router navigation hook
+  const { axios, user } = useAppContext();   // ⬅ pull user from context
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -19,33 +19,42 @@ const AddAddress = () => {
     phone: "",
   });
 
-  /* keep the change handler simple: just update state */
-  const handleChange = (e) => {
+  const [loading, setLoading] = useState(false);
+
+  /* -------- handlers -------- */
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
-  /* submit the entire form here */
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      const { data } = await axios.post("/api/address/add", {
-        address: formData,
-      });
+  try {
+    const payload = { address: formData, userId: user._id };
+    const { data } = await axios.post("/api/address/add", payload);
 
-      if (data.success) {
-        toast.success(data.message || "Address added successfully");
-        navigate("/cart");
-      } else {
-        toast.error(data.message || "Something went wrong");
-      }
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || error.message || "Network error"
-      );
+    if (data.success) {
+      toast.success(data.message || "Address added successfully");
+      navigate("/cart");
+    } else {
+      toast.error(data.message || "Something went wrong");
     }
-  };
+  } catch (err) {
+    toast.error(
+      err?.response?.data?.message || err.message || "Network error"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
+
+  /* -------- redirect if not logged in -------- */
+  useEffect(() => {
+    if (!user) navigate("/cart");
+  }, [user, navigate]);
+
+  /* -------- UI -------- */
   return (
     <div className="mt-16 pb-16 max-w-3xl mx-auto">
       <h1 className="text-2xl font-semibold mb-8 text-center">
@@ -154,9 +163,10 @@ const AddAddress = () => {
 
         <button
           type="submit"
-          className="w-full py-3 mt-4 bg-primary text-white font-medium rounded-md hover:bg-primary-dull transition"
+          disabled={loading}
+          className="w-full py-3 mt-4 bg-primary text-white font-medium rounded-md hover:bg-primary-dull transition disabled:opacity-60"
         >
-          Save Address
+          {loading ? "Saving…" : "Save Address"}
         </button>
       </form>
     </div>

@@ -7,11 +7,26 @@ const fallbackImage = "https://via.placeholder.com/150";
 const MyOrders = () => {
   const [myOrders, setMyOrders] = useState([]);
   const [visibleCount, setVisibleCount] = useState(3);
-  const { currency } = useAppContext();
+  const { currency, axios, user } = useAppContext();
+
+  const fetchMyOrders = async () => {
+    try {
+      const { data } = await axios.get('/api/order/user', {
+        params: { userId: user._id },
+      });
+      if (data.success) {
+        setMyOrders(data.orders);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    setMyOrders(dummyOrders);
-  }, []);
+    if (user) {
+      fetchMyOrders();
+    }
+  }, [user]);
 
   const handleImageError = (e) => {
     e.target.src = fallbackImage;
@@ -33,20 +48,17 @@ const MyOrders = () => {
       ) : (
         myOrders.slice(0, visibleCount).map((order, index) => (
           <div key={index} className="mb-10 p-4 sm:p-6 bg-white rounded-md shadow-sm space-y-4">
-            {/* Order Header */}
             <div className="flex flex-col md:flex-row justify-between text-gray-700 text-sm sm:text-base font-medium gap-2">
               <span>Order ID: {order._id}</span>
               <span>Payment: {order.paymentType}</span>
               <span>Total: {currency}{order.amount}</span>
             </div>
 
-            {/* Order Items */}
             {order.items.map((item, i) => (
               <div
                 key={i}
                 className="flex flex-col sm:flex-row justify-between gap-4 bg-gray-50 p-4 rounded-md"
               >
-                {/* Product Info */}
                 <div className="flex items-center gap-4">
                   <img
                     src={item.product?.image?.[0] || item.image}
@@ -60,7 +72,6 @@ const MyOrders = () => {
                   </div>
                 </div>
 
-                {/* Order Info */}
                 <div className="text-sm sm:text-right text-gray-600 flex flex-col gap-1">
                   <p>Qty: {item.quantity || 1}</p>
                   <p>Status: {order.status || 'Order Placed'}</p>
@@ -77,7 +88,6 @@ const MyOrders = () => {
               </div>
             ))}
 
-            {/* Action Buttons */}
             <div className="flex gap-4 justify-end pt-2">
               <button className="text-sm border border-primary text-primary px-4 py-1 rounded hover:bg-primary hover:text-white transition">
                 View Details

@@ -12,6 +12,7 @@ import addressRouter from './routes/addressRouter.js';
 import orderRouter from './routes/orderRoute.js';
 
 import cloudinary from './configs/cloudinary.js';
+import { stripeWebhooks } from './controllers/orderController.js';
 
 dotenv.config();
 
@@ -23,6 +24,8 @@ app.use(cors({
 }));
 app.use(cookieParser());
 app.use(express.json());
+
+app.post('/stripe', express.raw({type: 'application/json'}),stripeWebhooks)
 
 const startServer = async () => {
   try {

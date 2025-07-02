@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useAppContext } from "../../context/AppContext";
-import { assets, dummyOrders } from "../../assets/assets";
+import toast from "react-hot-toast";
+import { assets } from "../../assets/assets";
 
 const Orders = () => {
-  const { currency } = useAppContext();
+  const { currency, axios } = useAppContext();
   const [orders, setOrders] = useState([]);
 
   const fetchOrders = async () => {
-    // Simulating fetching mock data
-    setOrders(dummyOrders);
+    try {
+      const { data } = await axios.get("/api/order/all");
+      if (data.success) {
+        setOrders(data.orders);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {
@@ -21,9 +30,9 @@ const Orders = () => {
         <h2 className="text-lg font-medium">Orders List</h2>
 
         {orders.length > 0 ? (
-          orders.map((order, index) => (
+          orders.map((order) => (
             <div
-              key={index}
+              key={order._id}
               className="flex flex-col md:grid md:grid-cols-[2fr_1fr_1fr_1fr] md:items-center gap-5 p-3 md:p-5 max-w-full md:max-w-4xl rounded-md border border-gray-300 bg-white"
             >
               {/* Product Summary */}
@@ -31,12 +40,15 @@ const Orders = () => {
                 <img
                   className="w-10 h-10 md:w-12 md:h-12 object-cover opacity-60"
                   src={assets.box_icon}
-                  alt="boxIcon"
+                  alt="box icon"
                 />
                 <div>
-                  {order.items.map((item, i) => (
-                    <p key={i} className="font-medium text-sm md:text-base">
-                      {item.product.name}{" "}
+                  {order.items.map((item) => (
+                    <p
+                      key={item.product?._id || item._id}
+                      className="font-medium text-sm md:text-base"
+                    >
+                      {item.product?.name || "Product"}{" "}
                       <span className="text-primary">x {item.quantity}</span>
                     </p>
                   ))}
@@ -44,19 +56,26 @@ const Orders = () => {
               </div>
 
               {/* Address Info */}
-              <div className="text-xs md:text-base text-black/60 break-words">
-                <p className="text-black/80 font-medium">
-                  {order.address.firstName} {order.address.lastName}
+              {order.address ? (
+                <div className="text-xs md:text-base text-black/60 break-words">
+                  <p className="text-black/80 font-medium">
+                    {order.address.firstName || ""}{" "}
+                    {order.address.lastName || ""}
+                  </p>
+                  <p>
+                    {order.address.street || ""},{order.address.city || ""}
+                  </p>
+                  <p>
+                    {order.address.state || ""},{order.address.zipcode || ""},{" "}
+                    {order.address.country || ""}
+                  </p>
+                  <p>{order.address.phone || ""}</p>
+                </div>
+              ) : (
+                <p className="text-xs md:text-base text-black/60">
+                  Address not available
                 </p>
-                <p>
-                  {order.address.street}, {order.address.city}
-                </p>
-                <p>
-                  {order.address.state}, {order.address.zipcode},{" "}
-                  {order.address.country}
-                </p>
-                <p>{order.address.phone}</p>
-              </div>
+              )}
 
               {/* Amount */}
               <p className="font-medium text-base md:text-lg my-auto">

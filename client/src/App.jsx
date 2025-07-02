@@ -1,9 +1,7 @@
 import React from "react";
 import { Route, Routes, useLocation, Navigate } from "react-router-dom";
-
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-
 import { Home } from "./pages/Home";
 import Login from "./components/Login";
 import AllProducts from "./components/AllProducts";
@@ -12,15 +10,13 @@ import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 import AddAddress from "./pages/AddAddress";
 import MyOrders from "./pages/MyOrders";
-
 import SellerLogin from "./components/seller/SellerLogin";
 import SellerLayout from "./pages/seller/SellerLayout";
-
 import AddProduct from "./pages/seller/AddProduct";
 import ProductList from "./pages/seller/ProductList";
 import Orders from "./pages/seller/Orders";
-
 import { useAppContext } from "./context/AppContext";
+import Loading  from "./components/Loading";
 
 const App = () => {
   const location = useLocation();
@@ -43,6 +39,8 @@ const App = () => {
           <Route path="/cart" element={<Cart />} />
           <Route path="/add-address" element={<AddAddress />} />
           <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/loader" element={<Loading />} />
+
 
           {/* Seller Login */}
           <Route path="/seller-login" element={<SellerLogin />} />

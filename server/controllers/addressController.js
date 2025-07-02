@@ -21,7 +21,7 @@ const addAddress = async (req, res) => {
 // ✅ Get Address
 const getAddress = async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId } = req.query;
 
     if (!userId) {
       return res.status(400).json({ success: false, message: "Missing userId" });

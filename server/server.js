@@ -29,10 +29,8 @@ app.post('/stripe', express.raw({type: 'application/json'}),stripeWebhooks)
 
 const startServer = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.MONGODB_URI);
+
 
     console.log('Database Connected');
 

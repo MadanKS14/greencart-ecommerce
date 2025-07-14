@@ -16,17 +16,16 @@ import AddProduct from "./pages/seller/AddProduct";
 import ProductList from "./pages/seller/ProductList";
 import Orders from "./pages/seller/Orders";
 import { useAppContext } from "./context/AppContext";
-import Loading  from "./components/Loading";
+import Loading from "./components/Loading";
 
 const App = () => {
   const location = useLocation();
-  const { showUserLogin, isSeller } = useAppContext();
+  const { isSeller } = useAppContext();
   const isSellerPath = location.pathname.includes("seller");
 
   return (
     <div className="text-default min-h-screen text-gray-700 bg-white">
       {!isSellerPath && <Navbar />}
-      {showUserLogin && <Login />}
 
       <main className={`${isSellerPath ? "" : "px-6 md:px-16 lg:px-24 xl:px-32"}`}>
         <Routes>
@@ -41,6 +40,8 @@ const App = () => {
           <Route path="/my-orders" element={<MyOrders />} />
           <Route path="/loader" element={<Loading />} />
 
+          {/* Login Route */}
+          <Route path="/login" element={<Login />} />
 
           {/* Seller Login */}
           <Route path="/seller-login" element={<SellerLogin />} />
@@ -48,9 +49,7 @@ const App = () => {
           {/* Seller Protected Routes with Nested Layout */}
           <Route
             path="/seller"
-            element={
-              isSeller ? <SellerLayout /> : <Navigate to="/seller-login" replace />
-            }
+            element={isSeller ? <SellerLayout /> : <Navigate to="/seller-login" replace />}
           >
             <Route index element={<AddProduct />} />
             <Route path="add-product" element={<AddProduct />} />

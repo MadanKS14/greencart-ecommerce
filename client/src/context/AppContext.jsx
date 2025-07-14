@@ -18,7 +18,7 @@ export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   /* ---------- constants ---------- */
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const currency = import.meta.env.VITE_CURRENCY || "₹";
 
   /* ---------- state ---------- */
@@ -161,7 +161,7 @@ export const AppContextProvider = ({ children }) => {
   /* ---------- context value ---------- */
   const value = {
     /* navigation */
-    navigate,
+    //navigate,
     /* auth */
     user,
     setUser,

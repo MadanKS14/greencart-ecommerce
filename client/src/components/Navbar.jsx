@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { assets } from '../assets/assets';
 import { useAppContext } from '../context/AppContext';
 import axios from 'axios';
@@ -7,28 +7,27 @@ import toast from 'react-hot-toast';
 
 const Navbar = () => {
   const [open, setOpen] = React.useState(false);
+  const navigate = useNavigate(); // ✅ correctly placed inside component
+
   const {
     user,
     setUser,
-    setShowUserLogin,
-    navigate,
     setSearchQuery,
     getCartCount,
   } = useAppContext();
 
   const logout = async () => {
-    try{
-
-      const { data} = await axios.get('/api/user/logout')
-      if(data.success){
-        toast.success(data.message)
+    try {
+      const { data } = await axios.get('/api/user/logout');
+      if (data.success) {
+        toast.success(data.message);
         setUser(null);
-    navigate('/');
-      }else{
-        toast.error(data.message)
+        navigate('/');
+      } else {
+        toast.error(data.message);
       }
-    }catch(error){
-toast.error(error.message)
+    } catch (error) {
+      toast.error(error.message);
     }
 
     setUser(null);
@@ -87,7 +86,7 @@ toast.error(error.message)
 
         {!user ? (
           <button
-            onClick={() => setShowUserLogin(true)}
+            onClick={() => navigate("/login")}
             className="cursor-pointer px-8 py-2 bg-primary hover:bg-primary-dull transition text-white rounded-full"
           >
             Login
@@ -118,7 +117,10 @@ toast.error(error.message)
 
           {!user ? (
             <button
-              onClick={() => { setOpen(false); setShowUserLogin(true); }}
+              onClick={() => {
+                setOpen(false);
+                navigate("/login");
+              }}
               className="w-full cursor-pointer px-6 py-2 mt-2 bg-primary hover:bg-primary-dull transition text-white rounded-full text-sm"
             >
               Login

@@ -2,7 +2,7 @@ import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// REGISTER USER
+// ✅ REGISTER USER
 export const register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -28,13 +28,16 @@ export const register = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.status(201).json({ success: true, user: { name: user.name, email: user.email } });
+    return res.status(201).json({
+      success: true,
+      user: { name: user.name, email: user.email },
+    });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// LOGIN USER
+// ✅ LOGIN USER
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -62,13 +65,16 @@ export const login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.json({ success: true, user: { name: user.name, email: user.email } });
+    return res.json({
+      success: true,
+      user: { name: user.name, email: user.email },
+    });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// LOGOUT USER
+// ✅ LOGOUT USER
 export const logout = async (req, res) => {
   try {
     res.clearCookie("token", {
@@ -83,7 +89,7 @@ export const logout = async (req, res) => {
   }
 };
 
-// CHECK IF AUTHENTICATED
+// ✅ CHECK IF AUTHENTICATED (used in GET /is-auth route)
 export const isAuth = async (req, res) => {
   try {
     const user = await User.findById(req.userId).select("-password");
@@ -97,5 +103,3 @@ export const isAuth = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
-
-

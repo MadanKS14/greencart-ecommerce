@@ -11,7 +11,7 @@ import cartRouter from './routes/cartRouter.js';
 import addressRouter from './routes/addressRouter.js';
 import orderRouter from './routes/orderRoute.js';
 
-//import cloudinary from './configs/cloudinary.js';
+import cloudinary from './configs/cloudinary.js';
 import { stripeWebhooks } from './controllers/orderController.js';
 
 dotenv.config();

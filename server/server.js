@@ -18,7 +18,7 @@ dotenv.config();
 const app = express();
 
 const corsOptions = {
-  // Use VERCEL_URL in production, fallback to localhost for development
+  // Allow requests from the deployed Vercel URL or the local dev server.
   origin: process.env.VERCEL_URL || 'http://localhost:5173',
   credentials: true,
 };
@@ -26,10 +26,10 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
-// This special body parser is only for the /stripe webhook route
+// This body parser is only for the /stripe webhook route
 app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks);
 
-// Regular body parser for all other routes
+// This body parser is for all other routes
 app.use(express.json());
 
 const startServer = async () => {
@@ -48,7 +48,6 @@ const startServer = async () => {
       res.send('API Server is running');
     });
 
-    // Vercel assigns a port, so use the environment variable
     const PORT = process.env.PORT || 4000;
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

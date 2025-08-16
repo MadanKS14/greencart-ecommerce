@@ -17,6 +17,7 @@ dotenv.config();
 
 const app = express();
 
+// Configure CORS to dynamically accept requests from the Vercel URL
 const corsOptions = {
   // Use VERCEL_URL in production, fallback to localhost for development
   origin: process.env.VERCEL_URL || 'http://localhost:5173',
@@ -48,7 +49,11 @@ const startServer = async () => {
       res.send('API Server is running');
     });
 
+<<<<<<< HEAD
     // Vercel assigns a port, so use the environment variable
+=======
+    // Use a dynamic port for production environment
+>>>>>>> 1f8c0e5b3ea829325edef3dda1463ad8321d5fbf
     const PORT = process.env.PORT || 4000;
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

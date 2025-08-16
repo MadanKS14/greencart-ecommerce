@@ -11,7 +11,6 @@ import cartRouter from './routes/cartRouter.js';
 import addressRouter from './routes/addressRouter.js';
 import orderRouter from './routes/orderRoute.js';
 
-import cloudinary from './configs/cloudinary.js';
 import { stripeWebhooks } from './controllers/orderController.js';
 
 dotenv.config();
@@ -26,9 +25,12 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(cookieParser());
-app.use(express.json());
 
+// This special body parser is only for the /stripe webhook route
 app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks);
+
+// Regular body parser for all other routes
+app.use(express.json());
 
 const startServer = async () => {
   try {
@@ -46,8 +48,10 @@ const startServer = async () => {
       res.send('API Server is running');
     });
 
-    app.listen(4000, () => {
-      console.log('Server running at http://localhost:4000');
+    // Vercel assigns a port, so use the environment variable
+    const PORT = process.env.PORT || 4000;
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
     });
   } catch (err) {
     console.error('Startup Error:', err.message);

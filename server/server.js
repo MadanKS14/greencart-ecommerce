@@ -18,7 +18,6 @@ dotenv.config();
 const app = express();
 
 const corsOptions = {
-  // Use VERCEL_URL in production, fallback to localhost for development
   origin: process.env.VERCEL_URL || 'http://localhost:5173',
   credentials: true,
 };

@@ -18,20 +18,21 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({
-  origin: 'http://localhost:5173',
+const corsOptions = {
+  // Use VERCEL_URL in production, fallback to localhost for development
+  origin: process.env.VERCEL_URL || 'http://localhost:5173',
   credentials: true,
-}));
+};
+
+app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 
-app.post('/stripe', express.raw({type: 'application/json'}),stripeWebhooks)
+app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks);
 
 const startServer = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-
-
     console.log('Database Connected');
 
     app.use('/api/user', userRouter);

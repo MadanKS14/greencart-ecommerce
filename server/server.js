@@ -16,56 +16,53 @@ import { stripeWebhooks } from './controllers/orderController.js';
 dotenv.config();
 
 const app = express();
-
-const allowedOrigins = [
-  'http://localhost:5173',
-  process.env.VERCEL_URL,
-  'https://greencart-ecommerce-dun.vercel.app'
-];
+let isConnected = false;
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  // Use VERCEL_URL for production, fallback to localhost for development
+  origin: process.env.VERCEL_URL || 'http://localhost:5173',
   credentials: true,
 };
 
 app.use(cors(corsOptions));
 app.use(cookieParser());
 
-// This body parser is only for the /stripe webhook route
 app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks);
 
-// Regular body parser for all other routes
 app.use(express.json());
 
-const startServer = async () => {
+const connectToDatabase = async () => {
+  if (isConnected) {
+    console.log('Using existing database connection');
+    return;
+  }
   try {
     await mongoose.connect(process.env.MONGODB_URI);
+    isConnected = true;
     console.log('Database Connected');
-
-    app.use('/api/user', userRouter);
-    app.use('/api/seller', sellerRouter);
-    app.use('/api/product', productRouter);
-    app.use('/api/cart', cartRouter);
-    app.use('/api/address', addressRouter);
-    app.use('/api/order', orderRouter);
-
-    app.get('/', (req, res) => {
-      res.send('API Server is running');
-    });
-
-    const PORT = process.env.PORT || 4000;
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
   } catch (err) {
-    console.error('Startup Error:', err.message);
+    console.error('Database connection error:', err.message);
+    throw err;
   }
 };
 
-startServer();
+const startServer = async () => {
+  await connectToDatabase();
+
+  app.use('/api/user', userRouter);
+  app.use('/api/seller', sellerRouter);
+  app.use('/api/product', productRouter);
+  app.use('/api/cart', cartRouter);
+  app.use('/api/address', addressRouter);
+  app.use('/api/order', orderRouter);
+
+  app.get('/', (req, res) => {
+    res.send('API Server is running');
+  });
+
+  // Export the app instance directly
+  return app;
+};
+
+// Export a function that connects to the database and returns the app
+export default startServer().then(app => app);

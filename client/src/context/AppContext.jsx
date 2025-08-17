@@ -11,14 +11,16 @@ import axios from "axios";
 
 /* ---------------- axios defaults ---------------- */
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
+// Correctly set the base URL to a Vercel env variable or a fallback for local development
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
 /* ---------------- context ---------------- */
 export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   /* ---------- constants ---------- */
-  // const navigate = useNavigate();
+  // Uncommenting the useNavigate hook
+  const navigate = useNavigate();
   const currency = import.meta.env.VITE_CURRENCY || "₹";
 
   /* ---------- state ---------- */
@@ -161,7 +163,7 @@ export const AppContextProvider = ({ children }) => {
   /* ---------- context value ---------- */
   const value = {
     /* navigation */
-    //navigate,
+    navigate, // The navigate function is now available in the context
     /* auth */
     user,
     setUser,

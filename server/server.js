@@ -4,13 +4,13 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
+// Import your route handlers
 import userRouter from './routes/userRoute.js';
 import sellerRouter from './routes/sellerRoute.js';
 import productRouter from './routes/productRoute.js';
 import cartRouter from './routes/cartRouter.js';
 import addressRouter from './routes/addressRouter.js';
 import orderRouter from './routes/orderRoute.js';
-
 import { stripeWebhooks } from './controllers/orderController.js';
 
 dotenv.config();
@@ -19,7 +19,6 @@ const app = express();
 let isConnected = false;
 
 const corsOptions = {
-  // Use VERCEL_URL for production, fallback to localhost for development
   origin: process.env.VERCEL_URL || 'http://localhost:5173',
   credentials: true,
 };
@@ -46,23 +45,18 @@ const connectToDatabase = async () => {
   }
 };
 
-const startServer = async () => {
-  await connectToDatabase();
+connectToDatabase();
 
-  app.use('/api/user', userRouter);
-  app.use('/api/seller', sellerRouter);
-  app.use('/api/product', productRouter);
-  app.use('/api/cart', cartRouter);
-  app.use('/api/address', addressRouter);
-  app.use('/api/order', orderRouter);
+app.use('/api/user', userRouter);
+app.use('/api/seller', sellerRouter);
+app.use('/api/product', productRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/address', addressRouter);
+app.use('/api/order', orderRouter);
 
-  app.get('/', (req, res) => {
-    res.send('API Server is running');
-  });
+app.get('/', (req, res) => {
+  res.send('API Server is running');
+});
 
-  // Export the app instance directly
-  return app;
-};
-
-// Export a function that connects to the database and returns the app
-export default startServer().then(app => app);
+// Vercel requires a named export for serverless functions
+export default app;

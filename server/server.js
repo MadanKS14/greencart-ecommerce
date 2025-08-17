@@ -17,9 +17,20 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  process.env.VERCEL_URL,
+  'https://greencart-ecommerce-dun.vercel.app'
+];
+
 const corsOptions = {
-  // Use VERCEL_URL for production, fallback to localhost for development
-  origin: process.env.VERCEL_URL || 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 };
 

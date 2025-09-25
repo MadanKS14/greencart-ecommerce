@@ -1,6 +1,6 @@
-import cloudinary from "../configs/cloudinary.js";
 import streamifier from "streamifier";
-import Product from "../models/product.js";
+import Product from "../models/Product.js";
+import cloudinary from "../configs/cloudinary.js";
 
 const uploadToCloudinary = (buffer) =>
   new Promise((resolve, reject) => {

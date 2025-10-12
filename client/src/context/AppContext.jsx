@@ -29,6 +29,7 @@ export const AppContextProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState({}); // { [productId]: qty }
   const [searchQuery, setSearchQuery] = useState("");
+  const [showUserLogin, setShowUserLogin] = useState(false);
 
   /* ---------- helpers ---------- */
   // Convert object → array for backend
@@ -184,7 +185,11 @@ export const AppContextProvider = ({ children }) => {
     setSearchQuery,
     currency,
     axios,
-    setCartItems
+    setCartItems,
+
+    /* login modal control ✅ */
+    showUserLogin,
+    setShowUserLogin,
   };
 
   return (

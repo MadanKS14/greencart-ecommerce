@@ -17,6 +17,8 @@ import { stripeWebhooks } from './controllers/orderController.js';
 dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 4000;
+let dbErrorMessage = null;
 
 const corsOptions = {
   // Use VERCEL_URL in production, fallback to localhost for development
@@ -26,32 +28,62 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(cookieParser());
-app.use(express.json());
 
 app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks);
+app.use(express.json());
 
-const startServer = async () => {
+app.get('/', (req, res) => {
+  res.send('API Server is running');
+});
+
+app.get('/api/health', (_req, res) => {
+  res.status(mongoose.connection.readyState === 1 ? 200 : 503).json({
+    success: mongoose.connection.readyState === 1,
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    message: dbErrorMessage,
+  });
+});
+
+const requireDatabase = (_req, res, next) => {
+  if (mongoose.connection.readyState === 1) return next();
+
+  return res.status(503).json({
+    success: false,
+    message: dbErrorMessage || 'Database is not connected yet',
+  });
+};
+
+app.use('/api', requireDatabase);
+app.use('/api/user', userRouter);
+app.use('/api/seller', sellerRouter);
+app.use('/api/product', productRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/address', addressRouter);
+app.use('/api/order', orderRouter);
+
+const connectDatabase = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    const mongoUri = process.env.MONGODB_URI;
+
+    if (!mongoUri) {
+      throw new Error('MONGODB_URI is missing in server/.env');
+    }
+
+    await mongoose.connect(mongoUri, {
+      dbName: process.env.MONGODB_DB_NAME || 'greencart',
+      serverSelectionTimeoutMS: 10000,
+    });
+
+    dbErrorMessage = null;
     console.log('Database Connected');
-
-    app.use('/api/user', userRouter);
-    app.use('/api/seller', sellerRouter);
-    app.use('/api/product', productRouter);
-    app.use('/api/cart', cartRouter);
-    app.use('/api/address', addressRouter);
-    app.use('/api/order', orderRouter);
-
-    app.get('/', (req, res) => {
-      res.send('API Server is running');
-    });
-
-    app.listen(4000, () => {
-      console.log('Server running at http://localhost:4000');
-    });
   } catch (err) {
-    console.error('Startup Error:', err.message);
+    dbErrorMessage = err.message;
+    console.error('Database Connection Error:', err.message);
   }
 };
 
-startServer();
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
+
+connectDatabase();

@@ -63,6 +63,12 @@ export const AppContextProvider = ({ children }) => {
         setCartItems({});
       }
     } catch (err) {
+      if (err?.response?.status === 401) {
+        setUser(null);
+        setCartItems({});
+        return;
+      }
+
       console.error(
         "User auth failed:",
         err?.response?.data?.message || err.message
@@ -76,8 +82,17 @@ export const AppContextProvider = ({ children }) => {
     try {
       const { data } = await axios.get("/api/seller/is-auth");
       setIsSeller(Boolean(data.success));
-    } catch {
+    } catch (err) {
+      if (err?.response?.status === 401) {
+        setIsSeller(false);
+        return;
+      }
+
       setIsSeller(false);
+      console.error(
+        "Seller auth failed:",
+        err?.response?.data?.message || err.message
+      );
     }
   }, []);
 
@@ -88,7 +103,8 @@ export const AppContextProvider = ({ children }) => {
       if (data.success) setProducts(data.products);
       else toast.error(data.message);
     } catch (err) {
-      toast.error(err.message);
+      setProducts([]);
+      toast.error(err?.response?.data?.message || err.message);
     }
   }, []);
 

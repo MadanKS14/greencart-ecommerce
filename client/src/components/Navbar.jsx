@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate ,useLocation} from 'react-router-dom';
 import { assets } from '../assets/assets';
 import { useAppContext } from '../context/AppContext';
 import axios from 'axios';
@@ -8,10 +8,12 @@ import toast from 'react-hot-toast';
 const Navbar = () => {
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate(); // ✅ correctly placed inside component
+  const location = useLocation();
 
   const {
     user,
     setUser,
+    searchQuery,
     setSearchQuery,
     getCartCount,
   } = useAppContext();
@@ -66,12 +68,29 @@ const Navbar = () => {
         {/* Desktop Search Bar */}
         <div className="hidden lg:flex items-center text-sm gap-2 border border-gray-300 px-3 rounded-full">
           <input
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="py-1.5 w-full bg-transparent outline-none placeholder-gray-500"
             type="text"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+
+              if (location.pathname !== "/products") {
+                navigate("/products");
+              }
+            }}
+            className="py-1.5 w-full bg-transparent outline-none placeholder-gray-500"
             placeholder="Search products"
           />
-          <img src={assets.search_icon} alt="search" className='w-4 h-4' />
+
+          <button
+            type="button"
+            onClick={() => navigate("/products")}
+          >
+            <img
+              src={assets.search_icon}
+              alt="search"
+              className="w-4 h-4 cursor-pointer"
+            />
+          </button>
         </div>
 
         {/* Desktop Cart Icon */}

@@ -55,16 +55,18 @@ export const AppContextProvider = ({ children }) => {
   const fetchUser = useCallback(async () => {
     try {
       const { data } = await axios.get("/api/user/is-auth");
-      if (data.success) {
-        setUser(data.user);
-        setCartItems(toCartObject(data.user.cartItems));
-      } else {
-        setUser(null);
-        setCartItems({});
-      }
+     if (data.success) {
+  setUser(data.user);
+
+  // Automatically determine seller status
+  setIsSeller(data.user.role === "seller");
+
+  setCartItems(toCartObject(data.user.cartItems));
+}
     } catch (err) {
       if (err?.response?.status === 401) {
         setUser(null);
+        setIsSeller(false);
         setCartItems({});
         return;
       }
@@ -74,39 +76,33 @@ export const AppContextProvider = ({ children }) => {
         err?.response?.data?.message || err.message
       );
       setUser(null);
+      setIsSeller(false);
       setCartItems({});
     }
   }, []);
 
-  const fetchSeller = useCallback(async () => {
-    try {
-      const { data } = await axios.get("/api/seller/is-auth");
-      setIsSeller(Boolean(data.success));
-    } catch (err) {
-      if (err?.response?.status === 401) {
-        setIsSeller(false);
-        return;
-      }
-
-      setIsSeller(false);
-      console.error(
-        "Seller auth failed:",
-        err?.response?.data?.message || err.message
-      );
-    }
-  }, []);
 
   /* ---------- products ---------- */
+  // 
+  
+
   const fetchProducts = useCallback(async () => {
-    try {
-      const { data } = await axios.get("/api/product/list");
-      if (data.success) setProducts(data.products);
-      else toast.error(data.message);
-    } catch (err) {
-      setProducts([]);
-      toast.error(err?.response?.data?.message || err.message);
+  console.log("fetchProducts is called");
+
+  try {
+    const { data } = await axios.get("/api/product/list");
+
+    console.log("API Response:", data);
+
+    if (data.success) {
+      setProducts(data.products);
+    } else {
+      toast.error(data.message);
     }
-  }, []);
+  } catch (err) {
+    console.log("fetchProducts Error:", err);
+  }
+}, []);
 
   /* ---------- cart operations ---------- */
   const addToCart = (productId) =>
@@ -149,16 +145,14 @@ export const AppContextProvider = ({ children }) => {
   // initial app load
   useEffect(() => {
     fetchUser();
-    fetchSeller();
     fetchProducts();
-  }, [fetchUser, fetchSeller, fetchProducts]);
+  }, [fetchUser, fetchProducts]);
 
   // sync cart whenever it changes
   useEffect(() => {
     // must be logged in
     if (!user) return;
-    // skip empty cart (server rejects empty payload)
-    if (Object.keys(cartItems).length === 0) return;
+    
 
     const syncCart = async () => {
       try {

@@ -16,6 +16,7 @@ import AddProduct from "./pages/seller/AddProduct";
 import ProductList from "./pages/seller/ProductList";
 import Orders from "./pages/seller/Orders";
 import Loading from "./components/Loading";
+import Contact from "./pages/Contact";
 
 import { useAppContext } from "./context/AppContext";
 
@@ -81,6 +82,7 @@ const App = () => {
             path="/loader"
             element={<Loading />}
           />
+           <Route path="/contact" element={<Contact />} />
 
           <Route
             path="/login"
@@ -123,7 +125,6 @@ const App = () => {
               path="product-list"
               element={<ProductList />}
             />
-
             <Route
               path="orders"
               element={<Orders />}

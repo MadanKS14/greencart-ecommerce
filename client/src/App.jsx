@@ -17,13 +17,14 @@ import ProductList from "./pages/seller/ProductList";
 import Orders from "./pages/seller/Orders";
 import Loading from "./components/Loading";
 import Contact from "./pages/Contact";
+import Dashboard from "./pages/seller/Dashboard";
 
 import { useAppContext } from "./context/AppContext";
 
 const App = () => {
   const location = useLocation();
 
-  const { user } = useAppContext();
+  const { isSeller } = useAppContext();
 
   const isSellerPath = location.pathname.startsWith("/seller");
 
@@ -82,7 +83,7 @@ const App = () => {
             path="/loader"
             element={<Loading />}
           />
-           <Route path="/contact" element={<Contact />} />
+          <Route path="/contact" element={<Contact />} />
 
           <Route
             path="/login"
@@ -101,19 +102,19 @@ const App = () => {
           <Route
             path="/seller"
             element={
-              user?.role === "seller" ? (
-                <SellerLayout />
-              ) : (
-                <Navigate
-                  to="/seller-login"
-                  replace
-                />
-              )
+              isSeller
+                ? <SellerLayout />
+                : <Navigate to="/seller-login" replace />
             }
           >
             <Route
               index
-              element={<AddProduct />}
+              element={<Dashboard />}
+            />
+
+            <Route
+              path="dashboard"
+              element={<Dashboard />}
             />
 
             <Route
@@ -125,6 +126,7 @@ const App = () => {
               path="product-list"
               element={<ProductList />}
             />
+
             <Route
               path="orders"
               element={<Orders />}

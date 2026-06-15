@@ -13,6 +13,6 @@ const productRouter = express.Router();
 productRouter.post('/add', upload.array('images'), authSeller, addProduct);
 productRouter.get('/list', productList);
 productRouter.get('/:id', getSingleProduct);
-productRouter.put('/change-stock/:id', authSeller, changeStock); // important
+productRouter.put('/change-stock/:id', authSeller, changeStock); 
 
 export default productRouter;

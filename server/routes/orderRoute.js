@@ -7,7 +7,7 @@ const orderRouter = express.Router();
 
 orderRouter.post('/cod', authUser, placeOrderCOD);
 orderRouter.get('/user', authUser, getUserOrders);
-orderRouter.get('/all', authUser, getAllOrders); // changed `/seller` → `/all` for clarity
+orderRouter.get('/all', authUser, getAllOrders); 
 orderRouter.post('/stripe', authUser, placeOrderStripe);
 orderRouter.get("/seller", authSeller, getAllOrders);
 

@@ -2,14 +2,14 @@ import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-// =======================
-// REGISTER USER / SELLER
-// =======================
+/* =======================
+   REGISTER USER / SELLER
+======================= */
+
 export const register = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
-    // Validate required fields
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -17,7 +17,6 @@ export const register = async (req, res) => {
       });
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -27,10 +26,8 @@ export const register = async (req, res) => {
       });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
     const user = await User.create({
       name,
       email,
@@ -38,7 +35,6 @@ export const register = async (req, res) => {
       role: role || "user",
     });
 
-    // Generate JWT
     const token = jwt.sign(
       {
         id: user._id,
@@ -50,11 +46,11 @@ export const register = async (req, res) => {
       }
     );
 
-    // Set cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // change to true in production (HTTPS)
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite:
+        process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -78,14 +74,14 @@ export const register = async (req, res) => {
   }
 };
 
-// =======================
-// LOGIN USER / SELLER
-// =======================
+/* =======================
+   LOGIN USER / SELLER
+======================= */
+
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate input
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -93,7 +89,6 @@ export const login = async (req, res) => {
       });
     }
 
-    // Find user
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -103,7 +98,6 @@ export const login = async (req, res) => {
       });
     }
 
-    // Compare password
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
@@ -113,7 +107,6 @@ export const login = async (req, res) => {
       });
     }
 
-    // Generate JWT
     const token = jwt.sign(
       {
         id: user._id,
@@ -125,11 +118,11 @@ export const login = async (req, res) => {
       }
     );
 
-    // Set cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false, // change to true in production
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite:
+        process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -153,15 +146,17 @@ export const login = async (req, res) => {
   }
 };
 
-// =======================
-// LOGOUT
-// =======================
+/* =======================
+   LOGOUT
+======================= */
+
 export const logout = async (req, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite:
+        process.env.NODE_ENV === "production" ? "none" : "lax",
     });
 
     return res.json({
@@ -178,9 +173,10 @@ export const logout = async (req, res) => {
   }
 };
 
-// =======================
-// CHECK AUTH
-// =======================
+/* =======================
+   CHECK AUTH
+======================= */
+
 export const isAuth = async (req, res) => {
   try {
     const user = await User.findById(req.userId).select("-password");

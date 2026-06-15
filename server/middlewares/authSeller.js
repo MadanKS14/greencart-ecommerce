@@ -3,7 +3,6 @@ import User from "../models/user.js";
 
 const authSeller = async (req, res, next) => {
   try {
-    // Get user token
     const { token } = req.cookies;
 
     if (!token) {
@@ -13,10 +12,8 @@ const authSeller = async (req, res, next) => {
       });
     }
 
-    // Verify JWT
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Find user in database
     const user = await User.findById(decoded.id);
 
     if (!user) {

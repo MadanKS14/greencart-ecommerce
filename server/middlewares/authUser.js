@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-// ✅ Middleware to authenticate logged-in users
+//  Middleware to authenticate logged-in users
 const authUser = async (req, res, next) => {
   try {
     const { token } = req.cookies;

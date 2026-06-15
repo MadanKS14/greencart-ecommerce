@@ -5,12 +5,14 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
+      trim: true,
     },
 
     email: {
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
 
     password: {
@@ -18,7 +20,6 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
-    // ✅ New field
     role: {
       type: String,
       enum: ["user", "seller"],
@@ -32,9 +33,12 @@ const userSchema = new mongoose.Schema(
   },
   {
     minimize: false,
+    // timestamps: true, // Optional
   }
 );
 
-const User = mongoose.models.user || mongoose.model("user", userSchema);
+const User =
+  mongoose.models.user ||
+  mongoose.model("user", userSchema);
 
 export default User;
